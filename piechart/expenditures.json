@@ -1,0 +1,11 @@
+{"expenditures":[
+  {"type":"Healthcare", "percent":"8"},
+  {"type":"Insurance", "percent":"12"},
+  {"type":"Food", "percent":"13"},
+  {"type":"Housing", "percent":"33"},
+  {"type":"Transportation", "percent":"16"},
+  {"type":"Apparel", "percent":"3"},
+  {"type":"Entertainment", "percent":"5"},
+  {"type":"Healthcare", "percent":"8"},
+  {"type":"Other", "percent":"2"}
+]}
