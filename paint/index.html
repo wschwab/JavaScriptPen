@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width = device-width, initial-scale = 1">
+    <title>Paint App</title>
+    <link rel="stylesheet" type="text/css" href="mainstyle.css">
+    <script src="main.js"></script>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="toolbar">
+        <a class="selected" href="#" id="open" onclick="OpenImage()">
+          <img src="open-icon.png">
+        </a>
+        <a class="save" href="#" id="open" onclick="SaveImage()">
+          <img src="save-icon.png">
+        </a>
+        <a class="brush" href="#" id="open" onclick="ChangeTool('brush')">
+          <img src="brush-icon.png">
+        </a>
+        <a class="line" href="#" id="open" onclick="ChangeTool('line')">
+          <img src="line-icon.png">
+        </a>
+        <a class="rectangle" href="#" id="open" onclick="ChangeTool('rectangle')">
+          <img src="rectangle-icon.png">
+        </a>
+        <a class="circle" href="#" id="open" onclick="ChangeTool('circle')">
+          <img src="circle-icon.png">
+        </a>
+        <a class="ellipse" href="#" id="open" onclick="ChangeTool('ellipse')">
+          <img src="ellipse-icon.png">
+        </a>
+        <a class="polygon" href="#" id="open" onclick="ChangeTool('polygon')">
+          <img src="polygon-icon.png">
+        </a>
+      </div><br>
+
+      <canvas id="my-canvas" width="600" height="600"></canvas>
+
+      <div id="img-data-div">
+        <a href="#" id="img-file" download="image.png">Download</a>
+      </div>
+    </div>
+
+
+    <script src="main.js"></script>
+    </body>
+</html>
