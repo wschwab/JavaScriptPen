@@ -10,6 +10,11 @@ let currentTool = 'brush';
 let canvasWidth = 600;
 let canvasHeight = 600;
 
+let usingBrush = false;
+let brushXPoints = new Array();
+let brushYPoints = new Array();
+let brushDownPos = new Array();
+
 class ShapeBoundingBox {
   constructor(left, top, width, height) {
     this.left = left;
@@ -81,7 +86,7 @@ function SaveCanvasImage() {
 }
 
 function RedrawCanvasImage() {
-  ctx.putImageData(savedImageData);
+  ctx.putImageData(savedImageData,0,0);
 }
 
 function UpdateRubberbandSizeData(loc) {
@@ -116,12 +121,58 @@ function degreesToRadians(deg) {
   return deg * (Math.PI / 180);
 }
 
-function drawRubberband() {
+function UpdateRubberbandOnMove(loc) {
+  UpdateRubberbandSizeData(loc);
+  drawRubberbandShape(loc);
+}
+
+function getPolygonPoints() {
+  let angle = degreesToRadians(getAngleUsingXAndY(loc.x, loc.y));
+  let radiusX = shapeBoundingBox.width;
+  let radiusY = shapeBoundingBox.height;
+  let polygonPoints = [];
+  for (var i = 0; i < polygonSides; i++) {
+    polygonPoints.push(new PolygonPoint(loc.x + radiusX * Math.sin(angle), loc.y - radiusY * Math.cos(angle)));
+    angle += 2 * Math.PI / polygonSides;
+  }
+  return polygonPoints;
+}
+
+function getPolygon() {
+  let polygonPoints = getPolygonPoints();
+  ctx.beginPath();
+  ctx.moveTo(polygonPoints[0].x, polygonPoints[0].y);
+  for (var i = 0; i < polygonSides; i++) {
+    ctx.lineTo(polygonPoints[i].x, polygonPoints[i].y);
+  }
+  ctx.closePath();
+}
+
+function drawRubberbandShape(loc) {
+  ctx.strokeStyle = strokeColor;
+  ctx.fillStyle = fillColor;
+  ctx.strokeRect(shapeBoundingBox.left, shapeBoundingBox.top, shapeBoundingBox.width, shapeBoundingBox.height);
 
 }
 
-function updateRubberbandOnMove() {
+function AddBrushPoint(x,y, mouseDown) {
+  brushXPoints.push(x);
+  brushYPoints.push(y);
+  brushDownPos.push(mouseDown);
+}
 
+function DrawBrush() {
+  for (var i = 0; i < brushXPoints.length; i++) {
+    ctx.beginPath();
+    if (brushDownPos[i]) {
+      ctx.moveTo(brushXPoints[i-1], brushYPoints[i-1]);
+    } else {
+      ctx.moveTo(brushXPoints[i]-1, brushYPoints[i]-1);
+    }
+    ctx.lineTo(brushXPoints[i], brushYPoints[i]);
+    ctx.closePath();
+    ctx.stroke();
+  }
 }
 
 function ReactToMouseDown(evnt) {
@@ -138,11 +189,14 @@ function ReactToMouseDown(evnt) {
 function ReactToMouseMove(evnt) {
   canvas.style.cursor = "crosshair";
   loc = GetMousePosition(evnt.clientX, evnt.clientY);
-
+  if (dragging) {
+    RedrawCanvasImage();
+    UpdateRubberbandOnMove(loc);
+  }
 
 }
 
-function ReactToMouseUp() {
+function ReactToMouseUp(evnt) {
   canvas.style.cursor = "default";
   loc = GetMousePosition(evnt.clientX, evnt.clientY);
   RedrawCanvasImage();
