@@ -4,7 +4,7 @@ let savedImageData;
 let dragging = false;
 let strokeColor = 'black';
 let fillColor = 'black';
-let line_width = 2;
+let line_Width = 2;
 let polygonSides = 6;
 let currentTool = 'brush';
 let canvasWidth = 600;
@@ -55,7 +55,7 @@ function setupCanvas() {
   canvas = document.getElementById('my-canvas');
   ctx = canvas.getContext('2d');
   ctx.strokeStyle = strokeColor;
-  ctx.lineWidth = line_width;
+  ctx.lineWidth = line_Width;
   canvas.addEventListener("mousedown", ReactToMouseDown);
   canvas.addEventListener("mousemove", ReactToMouseMove);
   canvas.addEventListener("mouseup", ReactToMouseUp);
@@ -114,16 +114,15 @@ function getAngleUsingXAndY(mouselocX, mouselocY) {
 }
 
 function radiansToDegrees(rad) {
-  return (rad * (180 / Math.PI)).toFixed(2);
+  if (rad < 0) {
+    return (360.0 + (rad * (180 / Math.PI))).toFixed(2);
+  } else {
+    return (rad * (180 / Math.PI)).toFixed(2);
+  }
 }
 
 function degreesToRadians(deg) {
   return deg * (Math.PI / 180);
-}
-
-function UpdateRubberbandOnMove(loc) {
-  UpdateRubberbandSizeData(loc);
-  drawRubberbandShape(loc);
 }
 
 function getPolygonPoints() {
@@ -142,7 +141,7 @@ function getPolygon() {
   let polygonPoints = getPolygonPoints();
   ctx.beginPath();
   ctx.moveTo(polygonPoints[0].x, polygonPoints[0].y);
-  for (var i = 0; i < polygonSides; i++) {
+  for (var i = 1; i < polygonSides; i++) {
     ctx.lineTo(polygonPoints[i].x, polygonPoints[i].y);
   }
   ctx.closePath();
@@ -151,8 +150,35 @@ function getPolygon() {
 function drawRubberbandShape(loc) {
   ctx.strokeStyle = strokeColor;
   ctx.fillStyle = fillColor;
-  ctx.strokeRect(shapeBoundingBox.left, shapeBoundingBox.top, shapeBoundingBox.width, shapeBoundingBox.height);
+  if (currentTool === 'brush') {
+    DrawBrush();
+  } else if (currentTool === 'line') {
+    ctx.beginPath();
+    ctx.moveTo(mousedown.x, mousedown.y);
+    ctx.lineTo(loc.x, loc.y);
+    ctx.stroke();
+  } else if (currentTool === 'rectangle') {
+    ctx.strokeRect(shapeBoundingBox.left, shapeBoundingBox.top, shapeBoundingBox.width, shapeBoundingBox.height);
+  } else if (currentTool === 'circle') {
+    let radius = shapeBoundingBox.width;
+    ctx.beginPath();
+    ctx.arc(mousedown.x, mousedown.y, radius, 0, Math.PI * 2);
+    ctx.stroke();
+  } else if (currentTool === 'ellipse') {
+    let radiusX = shapeBoundingBox.width / 2;
+    let radiusY = shapeBoundingBox.height / 2;
+    ctx.beginPath();
+    ctx.ellipse(mousedown.x, mousedown.y, radiusX, radiusY, Math.PI / 4, 0, Math.PI * 2);
+  } else if (currentTool === 'polygon') {
+    getPolygon();
+    ctx.stroke();
+  }
 
+}
+
+function UpdateRubberbandOnMove(loc) {
+  UpdateRubberbandSizeData(loc);
+  drawRubberbandShape(loc);
 }
 
 function AddBrushPoint(x,y, mouseDown) {
@@ -183,17 +209,27 @@ function ReactToMouseDown(evnt) {
   mousedown.y = loc.y;
   dragging = true;
 
-
+  if (currentTool === 'brush') {
+    usingBrush = true;
+    AddBrushPoint(loc.x, loc.y);
+  }
 }
 
 function ReactToMouseMove(evnt) {
   canvas.style.cursor = "crosshair";
   loc = GetMousePosition(evnt.clientX, evnt.clientY);
-  if (dragging) {
+  if (currentTool === 'brush' && dragging && usingBrush) {
+    if (loc.x > 0 && loc.x < canvasWidth && loc.y > 0 && loc.y < canvasHeight) {
+      AddBrushPoint(loc.x, loc.y, true);
+    }
     RedrawCanvasImage();
-    UpdateRubberbandOnMove(loc);
+    DrawBrush();
+  } else {
+    if (dragging) {
+      RedrawCanvasImage();
+      UpdateRubberbandOnMove(loc);
+    }
   }
-
 }
 
 function ReactToMouseUp(evnt) {
