@@ -1,0 +1,7 @@
+.btn-danger {
+  background-color: cyan;
+}
+
+.btn-danger:hover {
+  background-color: teal;
+}
