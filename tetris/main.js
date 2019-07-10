@@ -117,3 +117,57 @@ function DrawTetromino() {
     ctx.fillRect(coorX,coorY,21,21);
   }
 }
+
+function HandleKeyPress(key) {
+  if (winOrLose != "Game Over") {
+    //LEFT (a) = 65 RIGHT (d) = 68 DOWN (s) = 83 ROTATE (e) = 69
+    if (key.keyCode === 65) {
+      direction = DIRECTION.LEFT;
+      if (!HittingTheWall() && !CheckForHorizontalCollision()) {
+        DeleteTetromino();
+        startX--;
+        DrawTetromino();
+      }
+    } else if (key.keyCode === 68) {
+      if (!HittingTheWall() && !CheckForHorizontalCollision()) {
+        DeleteTetromino();
+        startX++;
+        DrawTetromino();
+      }
+    } else if (key.keyCode === 83) {
+      MoveTetrominoDown();
+      }
+    } else if (key.keyCode === 69) {
+      RotateTetromino();
+    }
+  }
+}
+
+// Needs separate funtion in order to facilitate automatically moving down pieces
+function MoveTetrominoDown() {
+  direction = DIRECTION.DOWN;
+  if (!HittingTheWall() && !CheckForHorizontalCollision()) {
+    DeleteTetromino();
+    startY++;
+    DrawTetromino();
+}
+
+window.setInterval(function(){
+  if (winOrLose != "Game Over") {
+    MoveTetrominoDown();
+  }
+}, 1000)
+
+function DeleteTetromino() {
+  for (let i = 0; i < currentTetromino.length; i++) {
+    let x = currentTetromino[i][0] + startX;
+    let y = currentTetromino[i][1] + startY;
+
+    gameBoardArray[x][y] = 0;
+
+    let coorX = coordinateArray[x][y].x;
+    let coorY = coordinateArray[x][y].y;
+    ctx.fillStyle = 'white';
+    ctx.fillRect(coorX, coorY, 21, 21);
+  }
+}
